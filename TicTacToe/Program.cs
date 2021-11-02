@@ -14,6 +14,10 @@ namespace TicTacToe
         public static int player1 = 1;
 
         public static int player2 = 2;
+        
+        public static char userSign = 'O';
+
+        public static char computerSign = 'X';
 
         public static int numOfMoves;
 
@@ -99,7 +103,7 @@ namespace TicTacToe
                 char sign = field[i, 0];
                 if (field[i, 1] == sign && field[i, 2] == sign)
                 {
-                    winner = sign == 'O' ? player1 : player2;
+                    winner = sign == userSign ? player1 : player2;
                     return true;
                 }
             }
@@ -114,7 +118,7 @@ namespace TicTacToe
                 char sign = field[0, i];
                 if (field[1, i] == sign && field[2, i] == sign)
                 {
-                    winner = sign == 'O' ? player1 : player2;
+                    winner = sign == userSign ? player1 : player2;
                     return true;
                 }
             }
@@ -127,12 +131,12 @@ namespace TicTacToe
             char sign = field[1, 1];
             if (field[0, 0] == sign && field[2, 2] == sign)
             {
-                winner = sign == 'O' ? player1 : player2;
+                winner = sign == userSign ? player1 : player2;
                 return true;
             }
             if (field[0,2] == sign && field[2,0] == sign)
             {
-                winner = sign == 'O' ? player1 : player2;
+                winner = sign == userSign ? player1 : player2;
                 return true;
             }
 
@@ -149,7 +153,7 @@ namespace TicTacToe
                 Console.WriteLine(" your input is illegal");
                 Play(player);
             }
-            else if (Ispot < 1 || Ispot > (board_size*board_size) || usedSpots[Ispot]) // not in range
+            else if (Ispot < 1 || Ispot > (board_size * board_size) || usedSpots[Ispot]) // not in range
             {
                 Console.WriteLine(" your input is illegal");
                 Play(player);
@@ -165,7 +169,7 @@ namespace TicTacToe
 
         public static void updateField(int spot, int player)
         {
-            char sign = player == player1 ? 'O' : 'X';
+            char sign = player == player1 ? userSign : computerSign;
             int row = (spot - 1) / board_size;
             int column = (spot - 1) % board_size;
             field[row, column] = sign;
