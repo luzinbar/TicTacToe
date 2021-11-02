@@ -1,34 +1,50 @@
-﻿using System;
-
+using System;
 namespace TicTacToe
 {
     class Program
     {
-        public static bool[] usedSpots = { false, false, false, false, false, false, false, false, false, false};
+        public const int board_size = 3;
 
-        public static char[,] field = new char[3,3];
+        public static bool[] usedSpots = new bool[board_size * board_size + 1];
 
-        public static int winner = 0;
+        public static char[,] field = new char[board_size, board_size];
+
+        public static int winner;
+
+        public static int player1 = 1;
+
+        public static int player2 = 2;
+
+        public static int numOfMoves;
 
         static void Main(string[] args)
         {
+            int currentPlayer;
+
             do
             {
-                RestartFeild();
-                SetField();
-                Play(1);
-                Play(2);
-                while (!DoWeHaveAWinner())
-                {
-                    Play(1);
-                    if (!DoWeHaveAWinner())
-                    {
-                        Play(2);
-                    }
-                }
+                RestartField();
+                PrintBoard();
+                currentPlayer = player1;
 
-                Console.WriteLine("AND THE WINNER IS....");
-                Console.WriteLine("PLAYER {0} !!! BRAVO!", winner);
+                do
+                {
+                    Play(currentPlayer);
+                    numOfMoves++;
+                    currentPlayer = currentPlayer == player1 ? player2 : player1;
+
+                } while (!DoWeHaveAWinner() && (numOfMoves != (board_size * board_size)));
+
+                if (numOfMoves ==  board_size * board_size)
+                {
+                    Console.WriteLine("IT'S A TIE!");
+                }
+                else
+                {
+                    Console.WriteLine("AND THE WINNER IS....");
+                    Console.WriteLine("PLAYER {0} !!! BRAVO!", winner);
+                }
+                
                 Console.WriteLine("-----------");
                 Console.WriteLine("Press any key to restart ths game");
                 Console.ReadLine();
@@ -37,20 +53,27 @@ namespace TicTacToe
             while (true);
         }
 
-        public static void RestartFeild()
+        public static void RestartField()
         {
-            field[0, 0] = '1';
-            field[0, 1] = '2';
-            field[0, 2] = '3';
-            field[1, 0] = '4';
-            field[1, 1] = '5';
-            field[1, 2] = '6';
-            field[2, 0] = '7';
-            field[2, 1] = '8';
-            field[2, 2] = '9';
+            char cell_label = '1';
+            for (int i=0; i < board_size; i++)
+            {
+                for (int j=0; j < board_size; j++)
+                {
+                    field[i, j] = cell_label;
+                    cell_label++;
+                }
+            }
+
+            for (int i=0; i< usedSpots.Length; i++)
+            {
+                usedSpots[i] = false;
+            }
+
+            numOfMoves = 0;
         }
 
-        public static void SetField()
+        public static void PrintBoard()
         {
             Console.WriteLine("     |     |     ");
             Console.WriteLine("  {0}  |  {1}  |  {2}  ", field[0, 0], field[0, 1], field[0, 2]);
@@ -71,12 +94,12 @@ namespace TicTacToe
 
         public static bool CheckRow()
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < board_size; i++)
             {
-                char c = field[i, 0];
-                if (field[i, 1] == c && field[i, 2] == c)
+                char sign = field[i, 0];
+                if (field[i, 1] == sign && field[i, 2] == sign)
                 {
-                    winner = c == 'O' ? 1 : 2;
+                    winner = sign == 'O' ? player1 : player2;
                     return true;
                 }
             }
@@ -86,12 +109,12 @@ namespace TicTacToe
 
         public static bool CheckColumn()
         {
-            for (int i=0; i<3; i++)
+            for (int i=0; i<board_size; i++)
             {
-                char c = field[0, i];
-                if (field[1, i] == c && field[2, i] == c)
+                char sign = field[0, i];
+                if (field[1, i] == sign && field[2, i] == sign)
                 {
-                    winner = c == 'O' ? 1 : 2;
+                    winner = sign == 'O' ? player1 : player2;
                     return true;
                 }
             }
@@ -101,15 +124,15 @@ namespace TicTacToe
 
         public static bool CheckDiagonal()
         {
-            char c = field[1, 1];
-            if (field[0, 0] == c && field[2, 2] == c)
+            char sign = field[1, 1];
+            if (field[0, 0] == sign && field[2, 2] == sign)
             {
-                winner = c == 'O' ? 1 : 2;
+                winner = sign == 'O' ? player1 : player2;
                 return true;
             }
-            if (field[0,2] == c && field[2,0] == c)
+            if (field[0,2] == sign && field[2,0] == sign)
             {
-                winner = c == 'O' ? 1 : 2;
+                winner = sign == 'O' ? player1 : player2;
                 return true;
             }
 
@@ -121,12 +144,12 @@ namespace TicTacToe
             Console.WriteLine("Player {0}: Choose your field!" , player);
             string Sspot = Console.ReadLine();
             int Ispot;
-            if (!Int32.TryParse(Sspot, out Ispot)) // not an int
+            if (!Int32.TryParse(Sspot, out Ispot)) // not an Integer
             {
                 Console.WriteLine(" your input is illegal");
                 Play(player);
             }
-            else if (Ispot < 1 || Ispot > 9 || usedSpots[Ispot]) // not in range
+            else if (Ispot < 1 || Ispot > (board_size*board_size) || usedSpots[Ispot]) // not in range
             {
                 Console.WriteLine(" your input is illegal");
                 Play(player);
@@ -137,42 +160,15 @@ namespace TicTacToe
                 updateField(Ispot, player);
             }
             Console.Clear();
-            SetField();
+            PrintBoard();
         }
 
         public static void updateField(int spot, int player)
         {
-            char c = player == 1 ? 'O' : 'X';
-            switch (spot)
-            {
-                case 1:
-                    field[0, 0] = c;
-                    break;
-                case 2:
-                    field[0, 1] = c;
-                    break;
-                case 3:
-                    field[0, 2] = c;
-                    break;
-                case 4:
-                    field[1, 0] = c;
-                    break;
-                case 5:
-                    field[1, 1] = c;
-                    break;
-                case 6:
-                    field[1, 2] = c;
-                    break;
-                case 7:
-                    field[2, 0] = c;
-                    break;
-                case 8:
-                    field[2, 1] = c;
-                    break;
-                default: // case 9
-                    field[2, 2] = c;
-                    break;
-            }
+            char sign = player == player1 ? 'O' : 'X';
+            int row = (spot - 1) / board_size;
+            int column = (spot - 1) % board_size;
+            field[row, column] = sign;
         }
     }
 }
